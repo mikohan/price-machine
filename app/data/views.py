@@ -14,9 +14,9 @@ path_to_get = os.path.join(settings.BASE_DIR, "tmp/input")
 path_to_save = os.path.join(settings.BASE_DIR, "tmp/csv")
 
 
-def unzip_all_suppliers(directory="tmp/input"):
+def unzip_all_suppliers():
     """Check if some files saved in zip"""
-    working_dir = os.path.join(settings.BASE_DIR, directory)
+    working_dir = os.path.join(settings.BASE_DIR, path_to_get)
     p = Path(working_dir)
     print(list(p.glob("**/*.zip")))
     for item in list(p.glob("**/*.zip")):
@@ -98,4 +98,5 @@ def transform_prices(request):
 
 
 def home(request):
+    unzip_all_suppliers()
     return HttpResponse("<h1>Some stuff</h1>")
