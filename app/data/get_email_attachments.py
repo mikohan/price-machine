@@ -76,7 +76,7 @@ def delete_message(service, message_id):
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 
 
-def check_emails_and_save_attachments():
+def check_emails_and_save_attachments(email_address: str, supplier_name: str):
     """Shows basic usage of the Gmail API.
     Lists the user's Gmail labels.
     """
@@ -101,7 +101,9 @@ def check_emails_and_save_attachments():
     try:
         # Call the Gmail API
         service = build("gmail", "v1", credentials=creds)
-        q = "is:unread from:a.demich@tokus77.ru has:attachment"
+
+        q = f"is:unread from:{email_address} has:attachment"
+
         save_location = os.path.join(settings.BASE_DIR, "tmp/input")
 
         emails = search_emails(service, q)
@@ -115,11 +117,12 @@ def check_emails_and_save_attachments():
                     lambda header: header["name"] == "Date",
                     messageDetailPayload["headers"],
                 )
-                print(date)
 
                 if "parts" in messageDetailPayload:
                     for msgPayload in messageDetailPayload["parts"]:
-                        file_name = msgPayload["filename"]
+                        filename, file_ext = os.path.splitext(msgPayload["filename"])
+
+                        file_name = supplier_name + file_ext
                         body = msgPayload["body"]
                         if "attachmentId" in body:
                             attachment_id = body["attachmentId"]
@@ -154,3 +157,5 @@ def check_emails_and_save_attachments():
     except HttpError as error:
         # (developer) - Handle errors from gmail API.
         print(f"An error occurred: {error}")
+
+    return list(date)
