@@ -1,0 +1,12 @@
+.ipynb*
+.env
+.env*
+shared_data
+venv
+Pipfile
+token.json
+credentials.json
+db.sqlite3
+requirements.txt
+docker-compose.yml
+settings.py
