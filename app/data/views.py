@@ -14,9 +14,15 @@ path = os.path.join(settings.BASE_DIR, "shared_data/motordjidiler2.xls")
 def get_emails(request):
     """Getting emails with attachments and save it in folder"""
 
-    response = check_emails_and_save_attachments("price@rossko.ru", "rossko")
-    print(response)
-    html = f"<html><body>Some stuff{json.dumps(response)}</body></html>"
+    suppliers = Supplier.objects.all()
+    dates = []
+    for supplier in suppliers:
+        res = check_emails_and_save_attachments(supplier.email, supplier.name)
+        dates.append(res)
+        print(res)
+
+    # response = check_emails_and_save_attachments("price@rossko.ru", "rossko")
+    html = f"<html><body>Some stuff{json.dumps(dates)}</body></html>"
     return HttpResponse(html)
 
 

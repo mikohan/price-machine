@@ -80,6 +80,7 @@ def check_emails_and_save_attachments(email_address: str, supplier_name: str):
     """Shows basic usage of the Gmail API.
     Lists the user's Gmail labels.
     """
+    date = []
     credentials_path = os.path.join(settings.BASE_DIR, "data/credentials.json")
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
@@ -122,7 +123,11 @@ def check_emails_and_save_attachments(email_address: str, supplier_name: str):
                     for msgPayload in messageDetailPayload["parts"]:
                         filename, file_ext = os.path.splitext(msgPayload["filename"])
 
-                        file_name = supplier_name + file_ext
+                        file_name = msgPayload["filename"]
+                        dir_name = os.path.join(save_location, supplier_name)
+                        if not os.path.exists(dir_name):
+                            os.makedirs(dir_name)
+
                         body = msgPayload["body"]
                         if "attachmentId" in body:
                             attachment_id = body["attachmentId"]
@@ -133,12 +138,10 @@ def check_emails_and_save_attachments(email_address: str, supplier_name: str):
                                 file_name,
                                 save_location,
                             )
-                            with open(
-                                os.path.join(save_location, file_name), "wb"
-                            ) as f:
+                            with open(os.path.join(dir_name, file_name), "wb") as f:
                                 try:
                                     f.write(attachment_content)
-                                    print(f"File {file_name} saved to {save_location}")
+                                    print(f"File {file_name} saved to {dir_name}")
                                     service.users().messages().modify(
                                         userId="me",
                                         id=email["id"],
