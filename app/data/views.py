@@ -6,58 +6,96 @@ import pandas as pd
 from django.conf import settings, settings
 from .models import Supplier
 import glob
+from pathlib import Path
+import zipfile
 from data.get_email_attachments import check_emails_and_save_attachments
 
-path = os.path.join(settings.BASE_DIR, "shared_data/motordjidiler2.xls")
+path_to_get = os.path.join(settings.BASE_DIR, "tmp/input")
+path_to_save = os.path.join(settings.BASE_DIR, "tmp/csv")
+
+
+def unzip_all_suppliers(directory="tmp/input"):
+    """Check if some files saved in zip"""
+    working_dir = os.path.join(settings.BASE_DIR, directory)
+    p = Path(working_dir)
+    print(list(p.glob("**/*.zip")))
+    for item in list(p.glob("**/*.zip")):
+        print(item.parent)
+        with zipfile.ZipFile(item, "r") as zip_f:
+            zip_f.extractall(item.parents[0])
 
 
 def get_emails(request):
     """Getting emails with attachments and save it in folder"""
 
-    suppliers = Supplier.objects.all()
-    dates = []
-    for supplier in suppliers:
-        res = check_emails_and_save_attachments(supplier.email, supplier.name)
-        dates.append(res)
-        print(res)
+    unzip_all_suppliers(os.path.join(settings.BASE_DIR, "tmp"))
+
+    # suppliers = Supplier.objects.all()
+    # dates = []
+    # for supplier in suppliers:
+    #     res = check_emails_and_save_attachments(supplier.email, supplier.name)
+    #     dates.append(res)
+    #     print(res)
 
     # response = check_emails_and_save_attachments("price@rossko.ru", "rossko")
+    dates = []
     html = f"<html><body>Some stuff{json.dumps(dates)}</body></html>"
     return HttpResponse(html)
 
 
-def current_datetime(request):
-
-    suppliers = Supplier.objects.filter(enabled=True)
-    path_to_get = os.path.join(settings.BASE_DIR, "shared_data/input")
-    path_to_save = os.path.join(settings.BASE_DIR, "shared_data/csv")
+def transform_excel(supplier):
+    """Function iterate suppliers,
+    transform files into right csv format,
+    and save it into csv dir"""
     cols_ready = ["name", "brand", "cat", "cat2", "price", "stock"]
-    done = []
-    for supplier in suppliers:
-        price_fields = json.loads(supplier.price_fields)
-        skip_rows = 1
-        if supplier.skip_rows:
-            skip_rows = supplier.skip_rows
-        file_src = glob.glob(os.path.join(path_to_get, supplier.name.lower() + ".*"))[0]
+    skip_rows = 1
+    if supplier.skip_rows:
+        skip_rows = supplier.skip_rows
+    supplier_dir = Path(os.path.join(path_to_get, supplier.name.lower()))
+    files_src = supplier_dir.glob("*.[xl]*")
+    ret = []
+
+    for i, src in enumerate(files_src):
         df = pd.DataFrame(
             pd.read_excel(
-                file_src, names=price_fields, header=0, skiprows=range(1, skip_rows)
+                src,
+                names=json.loads(supplier.price_fields),
+                header=0,
+                skiprows=range(1, skip_rows),
             )
         )
         if "cat2" not in df.columns:
             df["cat2"] = ""
         df_reorder = df[cols_ready]
+        saved_path = os.path.join(
+            path_to_save, supplier.name.lower() + "_" + str(i) + ".csv"
+        )
         df_reorder.to_csv(
-            os.path.join(path_to_save, supplier.name.lower() + ".csv"),
+            saved_path,
             index=False,
             sep=";",
             encoding="utf-8",
         )
-        done.append({supplier.name: len(df.index)})
-    print_res = json.dumps(done)
+        ret.append(saved_path)
 
-    html = f"<html><body><div>Saved {print_res} rows.</div><div> Some text  </div></body></html>"
+    return ret
+
+
+def transform_prices(request):
+
+    ret = []
+    suppliers = Supplier.objects.filter(enabled=True)
+    for supplier in suppliers:
+        ret.append(transform_excel(supplier))
+
+    html = (
+        f"<html><body><div>{json.dumps(ret)}</div><div> Some text  </div></body></html>"
+    )
     return HttpResponse(html)
 
 
 # Create your views here.
+
+
+def home(request):
+    return HttpResponse("<h1>Some stuff</h1>")

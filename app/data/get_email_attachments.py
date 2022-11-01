@@ -2,6 +2,7 @@ import base64
 from typing import List
 import time
 import os
+import zipfile
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -105,6 +106,7 @@ def check_emails_and_save_attachments(email_address: str, supplier_name: str):
 
         q = f"is:unread from:{email_address} has:attachment"
 
+        # needs to be refactored to one place
         save_location = os.path.join(settings.BASE_DIR, "tmp/input")
 
         emails = search_emails(service, q)
