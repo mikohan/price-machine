@@ -1,3 +1,4 @@
+from tabnanny import check
 from django.shortcuts import render
 from django.http import HttpResponse
 import datetime, os, json
@@ -5,7 +6,7 @@ import pandas as pd
 from django.conf import settings, settings
 from .models import Supplier
 import glob
-from data.get_email_attachments import main
+from data.get_email_attachments import check_emails_and_save_attachments
 
 path = os.path.join(settings.BASE_DIR, "shared_data/motordjidiler2.xls")
 
@@ -13,7 +14,7 @@ path = os.path.join(settings.BASE_DIR, "shared_data/motordjidiler2.xls")
 def get_emails(request):
     """Getting emails with attachments and save it in folder"""
 
-    response = main()
+    response = check_emails_and_save_attachments()
     html = f"<html><body>Some stuff{response}</body></html>"
     return HttpResponse(html)
 

@@ -76,7 +76,7 @@ def delete_message(service, message_id):
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 
 
-def main():
+def check_emails_and_save_attachments():
     """Shows basic usage of the Gmail API.
     Lists the user's Gmail labels.
     """
@@ -105,50 +105,52 @@ def main():
         save_location = os.path.join(settings.BASE_DIR, "tmp/input")
 
         emails = search_emails(service, q)
-        for email in emails["messages"]:
-            message_details = get_message_details(
-                service, email["id"], msg_format="full", metadata_headers=["parts"]
-            )
-            messageDetailPayload = message_details.get("payload")
-            date = filter(
-                lambda header: header["name"] == "Date", messageDetailPayload["headers"]
-            )
-            print(date)
+        if "messages" in emails:
+            for email in emails["messages"]:
+                message_details = get_message_details(
+                    service, email["id"], msg_format="full", metadata_headers=["parts"]
+                )
+                messageDetailPayload = message_details.get("payload")
+                date = filter(
+                    lambda header: header["name"] == "Date",
+                    messageDetailPayload["headers"],
+                )
+                print(date)
 
-            if "parts" in messageDetailPayload:
-                for msgPayload in messageDetailPayload["parts"]:
-                    file_name = msgPayload["filename"]
-                    body = msgPayload["body"]
-                    if "attachmentId" in body:
-                        attachment_id = body["attachmentId"]
-                        attachment_content = get_file_data(
-                            service,
-                            email["id"],
-                            attachment_id,
-                            file_name,
-                            save_location,
-                        )
-                        with open(os.path.join(save_location, file_name), "wb") as f:
-                            try:
-                                f.write(attachment_content)
-                                print(f"File {file_name} saved to {save_location}")
-                                service.users().messages().modify(
-                                    userId="me",
-                                    id=email["id"],
-                                    body={
-                                        "removeLabelIds": ["UNREAD"],
-                                        "addLabelIds": [],
-                                    },
-                                ).execute()
-                            except Exception as e:
-                                print("File has not being saved", e)
+                if "parts" in messageDetailPayload:
+                    for msgPayload in messageDetailPayload["parts"]:
+                        file_name = msgPayload["filename"]
+                        body = msgPayload["body"]
+                        if "attachmentId" in body:
+                            attachment_id = body["attachmentId"]
+                            attachment_content = get_file_data(
+                                service,
+                                email["id"],
+                                attachment_id,
+                                file_name,
+                                save_location,
+                            )
+                            with open(
+                                os.path.join(save_location, file_name), "wb"
+                            ) as f:
+                                try:
+                                    f.write(attachment_content)
+                                    print(f"File {file_name} saved to {save_location}")
+                                    service.users().messages().modify(
+                                        userId="me",
+                                        id=email["id"],
+                                        body={
+                                            "removeLabelIds": ["UNREAD"],
+                                            "addLabelIds": [],
+                                        },
+                                    ).execute()
+                                except Exception as e:
+                                    print("File has not being saved", e)
 
-            time.sleep(0.5)
+                time.sleep(0.5)
+        else:
+            print("No messages found")
 
     except HttpError as error:
         # (developer) - Handle errors from gmail API.
         print(f"An error occurred: {error}")
-
-
-if __name__ == "__main__":
-    main()
