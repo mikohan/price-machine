@@ -205,6 +205,14 @@ def get_suppliers(request):
     # return HttpResponse(f"<h4>{json.dumps(updated_prices)}</h4>")
 
 
+def list_suppliers(request):
+    """Listing suppliers"""
+    suppliers = Supplier.objects.filter(enabled=True).order_by("-weight")
+    context = {"suppliers": suppliers}
+
+    return render(request, "suppliers_list.html", context)
+
+
 def home(request):
     unzip_all_suppliers()
     return HttpResponse("<h1>Some stuff</h1>")
