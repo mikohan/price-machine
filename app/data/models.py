@@ -25,6 +25,7 @@ class Supplier(models.Model):
         unique=True,
         help_text="Наименование поставщика, английскими буквами без пробелов",
     )
+    name_rus = models.CharField(max_length=255, default="Change me")
     email = models.EmailField(max_length=255, unique=True)
     updated_price = models.DateTimeField(blank=True)
     price_fields = models.TextField(
