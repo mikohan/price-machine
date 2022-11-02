@@ -12,20 +12,31 @@ from pathlib import Path
 import zipfile
 from dateutil import parser
 from data.get_email_attachments import check_emails_and_save_attachments
+import openpyxl as xl
+import time
 
 path_to_get = os.path.join(settings.BASE_DIR, "tmp/input")
 path_to_save = os.path.join(settings.BASE_DIR, "tmp/csv")
 
 
-def unzip_all_suppliers():
+def unzip_all_suppliers(supplier):
     """Check if some files saved in zip"""
-    working_dir = os.path.join(settings.BASE_DIR, path_to_get)
+    working_dir = os.path.join(settings.BASE_DIR, path_to_get, supplier.name.lower())
     p = Path(working_dir)
     print(list(p.glob("**/*.zip")))
     for item in list(p.glob("**/*.zip")):
         print(item.parent)
         with zipfile.ZipFile(item, "r") as zip_f:
             zip_f.extractall(item.parents[0])
+
+
+def update_date(supplier, str_date):
+
+    """Updated date if price was received"""
+    date_time = parser.parse(str_date)
+    supplier.updated_price = date_time
+    supplier.save()
+    return supplier.updated_price
 
 
 def get_emails(request):
@@ -36,10 +47,7 @@ def get_emails(request):
     for supplier in suppliers:
         try:
             res = check_emails_and_save_attachments(supplier.email, supplier.name)
-            str_date = res[0]["value"]
-            date_time = parser.parse(str_date)
-            supplier.updated_price = date_time
-            supplier.save()
+            update_date(supplier, res)
 
             dates.append({"Date": res})
             print(res)
@@ -48,6 +56,17 @@ def get_emails(request):
 
     html = f"<html><body>Some stuff{json.dumps(dates)}</body></html>"
     return HttpResponse(html)
+
+
+def col_count(path):
+    ext = Path(path).suffix
+    print(ext)
+    if ".xlsx" == ext:
+        wb = xl.load_workbook(path, enumerate)
+        sheet = wb.worksheets[0]
+        column_count = sheet.max_column
+        return column_count
+    return False
 
 
 def transform_excel(supplier):
@@ -73,12 +92,19 @@ def transform_excel(supplier):
     ret = []
 
     for i, src in enumerate(files_src):
+        raw_cols = json.loads(supplier.price_fields)
+        len_raw_cols = len(raw_cols)
+        col_cnt = col_count(src)
+        if col_cnt > len_raw_cols:
+            dif = col_cnt - len_raw_cols
+            for n in range(dif):
+                raw_cols.append("emp")
         try:
             try:
                 df = pd.DataFrame(
                     pd.read_excel(
                         src,
-                        names=json.loads(supplier.price_fields),
+                        names=raw_cols,
                         header=0,
                         skiprows=range(1, skip_rows),
                     )
@@ -87,7 +113,7 @@ def transform_excel(supplier):
                 df = pd.DataFrame(
                     pd.read_excel(
                         src,
-                        names=json.loads(supplier.price_fields),
+                        names=raw_cols,
                         skiprows=range(1, skip_rows),
                         header=0,
                         engine="odf",
@@ -137,13 +163,42 @@ def transform_prices(request):
 
 
 def get_supplier(request, pk):
+    """
+    Workflow for getting prices for specific supplier
+    """
     supplier = Supplier.objects.get(pk=pk)
 
     res = check_emails_and_save_attachments(supplier.email, supplier.name)
-    unzip_all_suppliers()
     transform_excel(supplier)
+    if res:
+        unzip_all_suppliers(supplier)
+        transform_excel(supplier)
+        upd_date = update_date(supplier, res)
+        print("Price date has been updated!", str(upd_date))
 
     return HttpResponse(f"<h1>{json.dumps(res)}</h1>")
+
+
+def get_suppliers(request):
+    """Workflow of getting prices for all suppliers"""
+    start_time = time.time()
+    suppliers = Supplier.objects.filter(enabled=True)
+    updated_prices = []
+    for supplier in suppliers:
+        res = check_emails_and_save_attachments(supplier.email, supplier.name)
+        transform_excel(supplier)
+        if res:
+            unzip_all_suppliers(supplier)
+            transform_excel(supplier)
+            upd_date = update_date(supplier, res)
+            upd = str(upd_date)
+            updated_prices.append({"Supplier": supplier.name, "Updated": upd})
+        else:
+            updated_prices.append({"Supplier": supplier.name, "Updated": "Not Updated"})
+    work_time = time.time() - start_time
+    updated_prices.append({"Script worked:": work_time})
+
+    return HttpResponse(f"<h1>{json.dumps(updated_prices)}</h1>")
 
 
 def home(request):

@@ -74,6 +74,20 @@ def delete_message(service, message_id):
     delete = service.users().messages().delete(userId="me", id=message_id).execute()
 
 
+def clear_folder_before(dir_name):
+
+    """Function deletes all files in directory"""
+    try:
+        del_files = os.listdir(dir_name)
+        for name in del_files:
+            d_f = os.path.join(dir_name, name)
+            os.remove(d_f)
+        return del_files
+    except:
+        print("No files or dirs to rmove")
+        return ["nothing to delete"]
+
+
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 
 
@@ -111,6 +125,11 @@ def check_emails_and_save_attachments(email_address: str, supplier_name: str):
 
         emails = search_emails(service, q)
         if "messages" in emails:
+            # call function for deleting here
+            output = clear_folder_before(
+                os.path.join(save_location, supplier_name.lower())
+            )
+            print("Output from delete files function", output)
             for email in emails["messages"]:
                 message_details = get_message_details(
                     service, email["id"], msg_format="full", metadata_headers=["parts"]
@@ -128,15 +147,6 @@ def check_emails_and_save_attachments(email_address: str, supplier_name: str):
                         file_name = msgPayload["filename"]
                         dir_name = os.path.join(save_location, supplier_name)
 
-                        """Here remove files goes"""
-                        try:
-                            del_files = os.listdir(dir_name)
-                            for name in del_files:
-                                d_f = os.path.join(dir_name, name)
-                                os.remove(d_f)
-                        except:
-                            print("No files or dirs to rmove")
-                            """Until here"""
                         if not os.path.exists(dir_name):
                             os.makedirs(dir_name)
 
@@ -173,4 +183,8 @@ def check_emails_and_save_attachments(email_address: str, supplier_name: str):
         # (developer) - Handle errors from gmail API.
         print(f"An error occurred: {error}")
 
-    return list(date)
+    try:
+        ret_date = list(date)[0]["value"]
+        return ret_date
+    except:
+        return False
