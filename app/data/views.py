@@ -1,11 +1,11 @@
 import parser
 from tabnanny import check
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import os, json
 from datetime import datetime
 import pandas as pd
-from django.conf import settings, settings
+from django.conf import settings
 from .models import Supplier
 import glob
 from pathlib import Path
@@ -208,7 +208,8 @@ def get_suppliers(request):
 def list_suppliers(request):
     """Listing suppliers"""
     suppliers = Supplier.objects.filter(enabled=True).order_by("-weight")
-    context = {"suppliers": suppliers}
+    supplier = suppliers.first()
+    context = {"suppliers": suppliers, "PRICE_EXPERATION": settings.PRICE_EXPERATION}
 
     return render(request, "suppliers_list.html", context)
 
@@ -216,3 +217,8 @@ def list_suppliers(request):
 def home(request):
     unzip_all_suppliers()
     return HttpResponse("<h1>Some stuff</h1>")
+
+
+def ajax_upate_supplier(request):
+    time.sleep(4)
+    return JsonResponse({"foo": "bar"})

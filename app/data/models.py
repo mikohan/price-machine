@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 # Create your models here.
 
@@ -25,7 +26,11 @@ class Supplier(models.Model):
         unique=True,
         help_text="Наименование поставщика, английскими буквами без пробелов",
     )
-    name_rus = models.CharField(max_length=255, default="Change me")
+    name_rus = models.CharField(
+        max_length=255,
+        default="Change me",
+        help_text="Наименование поставщика, на русском как душе угодно",
+    )
     email = models.EmailField(max_length=255, unique=True)
     updated_price = models.DateTimeField(blank=True)
     price_fields = models.TextField(
@@ -43,6 +48,18 @@ class Supplier(models.Model):
         help_text="Показывать поставщика или нет",
     )
     weight = models.IntegerField(default=10, help_text="Вес поставщика")
+
+    @property
+    def show_name(self):
+        if self.name_rus == "Change me":
+            return self.name
+        return self.name_rus
+
+    @property
+    def days_passed(self):
+        tm = self.updated_price.replace(tzinfo=None)
+        delta = datetime.now() - tm
+        return int(delta.days)
 
     class Meta:
         verbose_name = "Поставщик"
