@@ -34,17 +34,18 @@ def get_emails(request):
     suppliers = Supplier.objects.all()
     dates = []
     for supplier in suppliers:
-        res = check_emails_and_save_attachments(supplier.email, supplier.name)
-        str_date = res[0]["value"]
-        date_time = parser.parse(str_date)
-        supplier.updated_price = date_time
-        supplier.save()
+        try:
+            res = check_emails_and_save_attachments(supplier.email, supplier.name)
+            str_date = res[0]["value"]
+            date_time = parser.parse(str_date)
+            supplier.updated_price = date_time
+            supplier.save()
 
-        dates.append(res)
-        print(res)
+            dates.append({"Date": res})
+            print(res)
+        except Exception as e:
+            print("Emails not received")
 
-    response = check_emails_and_save_attachments("price@rossko.ru", "rossko")
-    dates = []
     html = f"<html><body>Some stuff{json.dumps(dates)}</body></html>"
     return HttpResponse(html)
 
@@ -133,6 +134,16 @@ def transform_prices(request):
 
 
 # Create your views here.
+
+
+def get_supplier(request, pk):
+    supplier = Supplier.objects.get(pk=pk)
+
+    res = check_emails_and_save_attachments(supplier.email, supplier.name)
+    unzip_all_suppliers()
+    transform_excel(supplier)
+
+    return HttpResponse(f"<h1>{json.dumps(res)}</h1>")
 
 
 def home(request):

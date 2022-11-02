@@ -127,6 +127,16 @@ def check_emails_and_save_attachments(email_address: str, supplier_name: str):
 
                         file_name = msgPayload["filename"]
                         dir_name = os.path.join(save_location, supplier_name)
+
+                        """Here remove files goes"""
+                        try:
+                            del_files = os.listdir(dir_name)
+                            for name in del_files:
+                                d_f = os.path.join(dir_name, name)
+                                os.remove(d_f)
+                        except:
+                            print("No files or dirs to rmove")
+                            """Until here"""
                         if not os.path.exists(dir_name):
                             os.makedirs(dir_name)
 
