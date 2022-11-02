@@ -186,18 +186,18 @@ def get_suppliers(request):
     start_time = time.time()
     suppliers = Supplier.objects.filter(enabled=True)
     updated_prices = []
-    for supplier in suppliers:
-        res = check_emails_and_save_attachments(supplier.email, supplier.name)
-        if res:
-            unzip_all_suppliers(supplier)
-            transform_excel(supplier)
-            upd_date = update_date(supplier, res)
-            upd = str(upd_date)
-            updated_prices.append({supplier.name: upd})
-        else:
-            updated_prices.append({supplier.name: "Not Updated"})
-    work_time = int(time.time() - start_time)
-    updated_prices.append({"Script worked seconds:": work_time})
+    # for supplier in suppliers:
+    #     res = check_emails_and_save_attachments(supplier.email, supplier.name)
+    #     if res:
+    #         unzip_all_suppliers(supplier)
+    #         transform_excel(supplier)
+    #         upd_date = update_date(supplier, res)
+    #         upd = str(upd_date)
+    #         updated_prices.append({supplier.name: upd})
+    #     else:
+    #         updated_prices.append({supplier.name: "Not Updated"})
+    # work_time = int(time.time() - start_time)
+    # updated_prices.append({"Script worked seconds:": work_time})
     context = {"Var": "Hello world"}
 
     return render(request, "suppliers.html", context)
