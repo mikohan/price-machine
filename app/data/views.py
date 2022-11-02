@@ -60,12 +60,15 @@ def get_emails(request):
 
 def col_count(path):
     ext = Path(path).suffix
-    print(ext)
     if ".xlsx" == ext:
-        wb = xl.load_workbook(path, enumerate)
-        sheet = wb.worksheets[0]
-        column_count = sheet.max_column
-        return column_count
+        try:
+            wb = xl.load_workbook(path, enumerate)
+            sheet = wb.worksheets[0]
+            column_count = sheet.max_column
+            return column_count
+        except Exception as e:
+            print("Something wrong in co_count function", e)
+            return False
     return False
 
 
@@ -169,7 +172,6 @@ def get_supplier(request, pk):
     supplier = Supplier.objects.get(pk=pk)
 
     res = check_emails_and_save_attachments(supplier.email, supplier.name)
-    transform_excel(supplier)
     if res:
         unzip_all_suppliers(supplier)
         transform_excel(supplier)
@@ -186,19 +188,21 @@ def get_suppliers(request):
     updated_prices = []
     for supplier in suppliers:
         res = check_emails_and_save_attachments(supplier.email, supplier.name)
-        transform_excel(supplier)
         if res:
             unzip_all_suppliers(supplier)
             transform_excel(supplier)
             upd_date = update_date(supplier, res)
             upd = str(upd_date)
-            updated_prices.append({"Supplier": supplier.name, "Updated": upd})
+            updated_prices.append({supplier.name: upd})
         else:
-            updated_prices.append({"Supplier": supplier.name, "Updated": "Not Updated"})
-    work_time = time.time() - start_time
-    updated_prices.append({"Script worked:": work_time})
+            updated_prices.append({supplier.name: "Not Updated"})
+    work_time = int(time.time() - start_time)
+    updated_prices.append({"Script worked seconds:": work_time})
+    context = {"Var": "Hello world"}
 
-    return HttpResponse(f"<h1>{json.dumps(updated_prices)}</h1>")
+    return render(request, "suppliers.html", context)
+
+    # return HttpResponse(f"<h4>{json.dumps(updated_prices)}</h4>")
 
 
 def home(request):
