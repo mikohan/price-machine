@@ -10,11 +10,10 @@ from data.views import (
 from django.urls import path
 
 urlpatterns = [
-    path("", home, name="test-home"),
+    path("", home, name="home"),
     path("emails/", get_emails, name="get-emails"),
     path("supplier/<int:pk>/", get_supplier, name="get-supplier-price"),
     path("suppliers/", list_suppliers, name="list-suppliers"),
-    path("get-suppliers/", get_suppliers, name="get-suppliers-price"),
-    path("transform-prices/", transform_prices, name="transform-prices"),
+    path("ajax-update-suppliers/", get_suppliers, name="ajax-update-suppliers"),
     path("ajax-update-supplier/", ajax_upate_supplier, name="ajax-update-supplier"),
 ]

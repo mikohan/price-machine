@@ -177,8 +177,12 @@ def get_supplier(request, pk):
         transform_excel(supplier)
         upd_date = update_date(supplier, res)
         print("Price date has been updated!", str(upd_date))
+    return JsonResponse({"all": "good"})
 
-    return HttpResponse(f"<h1>{json.dumps(res)}</h1>")
+    # return HttpResponse(f"<h1>{json.dumps(res)}</h1>")
+
+
+from django.core import serializers
 
 
 def get_suppliers(request):
@@ -186,21 +190,19 @@ def get_suppliers(request):
     start_time = time.time()
     suppliers = Supplier.objects.filter(enabled=True)
     updated_prices = []
-    # for supplier in suppliers:
-    #     res = check_emails_and_save_attachments(supplier.email, supplier.name)
-    #     if res:
-    #         unzip_all_suppliers(supplier)
-    #         transform_excel(supplier)
-    #         upd_date = update_date(supplier, res)
-    #         upd = str(upd_date)
-    #         updated_prices.append({supplier.name: upd})
-    #     else:
-    #         updated_prices.append({supplier.name: "Not Updated"})
-    # work_time = int(time.time() - start_time)
-    # updated_prices.append({"Script worked seconds:": work_time})
-    context = {"Var": "Hello world"}
+    for supplier in suppliers:
+        res = check_emails_and_save_attachments(supplier.email, supplier.name)
+        if res:
+            unzip_all_suppliers(supplier)
+            transform_excel(supplier)
+            upd_date = update_date(supplier, res)
+            upd = str(upd_date.replace(tzinfo=None))
+            updated_prices.append({supplier.show_name: f"{upd}"})
+        else:
+            updated_prices.append({supplier.show_name: False})
+    work_time = int(time.time() - start_time)
 
-    return render(request, "suppliers.html", context)
+    return JsonResponse({"foo": updated_prices, "time": work_time})
 
     # return HttpResponse(f"<h4>{json.dumps(updated_prices)}</h4>")
 
@@ -215,8 +217,8 @@ def list_suppliers(request):
 
 
 def home(request):
-    unzip_all_suppliers()
-    return HttpResponse("<h1>Some stuff</h1>")
+    context = {}
+    return render(request, "manager-page.html", context)
 
 
 def ajax_upate_supplier(request):
