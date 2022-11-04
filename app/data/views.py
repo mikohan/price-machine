@@ -314,17 +314,19 @@ def make_search(request):
             }
         },
     }
-    # client = Elasticsearch(
-    #     "http://localhost:9200", basic_auth=("elastic", "manhee33338")
-    # )
-    # client.info()
-
-    r = requests.post(
-        f"{settings.ELASTIC_URL}/{settings.ELASTIC_INDEX}/_search",
-        auth=HTTPBasicAuth("elastic", "manhee33338"),
-        headers={"Content-Type": "application/json"},
-        # data=data,
+    client = Elasticsearch(
+        "http://elasticsearch:9200", basic_auth=("elastic", "manhee33338")
     )
-    print(json.dumps(data))
-    print(r.json())
-    return JsonResponse(r.json())
+    client.info()
+
+    # r = requests.post(
+    #     f"{settings.ELASTIC_URL}/{settings.ELASTIC_INDEX}/_search",
+    #     auth=HTTPBasicAuth("elastic", "manhee33338"),
+    #     headers={"Content-Type": "application/json"},
+    #     # data=data,
+    # )
+    r = requests.get("https://google.com")
+    print(r.text)
+    # print(json.dumps(data))
+    # print(r.json())
+    return JsonResponse({"some": "text"})
