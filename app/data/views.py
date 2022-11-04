@@ -314,6 +314,6 @@ def make_search(request):
         headers={"Content-Type": "application/json"},
         data=json.dumps(data),
     )
-    # print(json.dumps(data))
+    print(os.environ.get("POSTGRES_USER"))
     # print(r.json())
     return JsonResponse(r.json())
