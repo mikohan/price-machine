@@ -22,7 +22,8 @@
         $('#spinner-' + id).hide();
         $('#' + id).show();
         console.log(data);
-        location.reload();
+
+        // location.reload();
       },
     });
   });

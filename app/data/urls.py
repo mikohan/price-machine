@@ -16,4 +16,5 @@ urlpatterns = [
     path("suppliers/", list_suppliers, name="list-suppliers"),
     path("ajax-update-suppliers/", get_suppliers, name="ajax-update-suppliers"),
     path("ajax-update-supplier/", ajax_upate_supplier, name="ajax-update-supplier"),
+    path("transform-price/", transform_prices, name="transform-price"),
 ]

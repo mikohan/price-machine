@@ -14,6 +14,8 @@ from dateutil import parser
 from data.get_email_attachments import check_emails_and_save_attachments
 import openpyxl as xl
 import time
+import hashlib
+from data.lib.one_c_fixer import fix_truck_motors
 
 path_to_get = os.path.join(settings.BASE_DIR, "tmp/input")
 path_to_save = os.path.join(settings.BASE_DIR, "tmp/csv")
@@ -72,11 +74,28 @@ def col_count(path):
     return False
 
 
+def strip_whitespace(text):
+    """Functon removes whitespases in names befor inserting in pandas"""
+    try:
+        return text.strip()
+    except AttributeError:
+        return text
+
+
+def make_uuid(name, brand):
+    """Make unique ID from Name and brand"""
+    string = str(name) + str(brand)
+    m = hashlib.md5()
+    m.update(string.encode("utf-8"))
+    return str(int(m.hexdigest(), 16))[0:12]
+
+
 def transform_excel(supplier):
     """Function iterate suppliers,
     transform files into right csv format,
     and save it into csv dir"""
     cols_ready = [
+        "uuid",
         "name",
         "brand",
         "cat",
@@ -98,30 +117,49 @@ def transform_excel(supplier):
         raw_cols = json.loads(supplier.price_fields)
         len_raw_cols = len(raw_cols)
         col_cnt = col_count(src)
+
+        # fixing truck motors file
+        if supplier.name == "trackmotors":
+            fix_truck_motors(src)
+
         if col_cnt > len_raw_cols:
             dif = col_cnt - len_raw_cols
             for n in range(dif):
                 raw_cols.append("emp")
         try:
-            try:
-                df = pd.DataFrame(
-                    pd.read_excel(
-                        src,
-                        names=raw_cols,
-                        header=0,
-                        skiprows=range(1, skip_rows),
-                    )
+            # try:
+
+            df = pd.DataFrame(
+                pd.read_excel(
+                    src,
+                    names=raw_cols,
+                    header=0,
+                    skiprows=range(1, skip_rows),
+                    converters={
+                        "name": strip_whitespace,
+                        "cat": strip_whitespace,
+                    },
                 )
-            except:
-                df = pd.DataFrame(
-                    pd.read_excel(
-                        src,
-                        names=raw_cols,
-                        skiprows=range(1, skip_rows),
-                        header=0,
-                        engine="odf",
-                    )
-                )
+            )
+            # except Exception as e:
+            #     df = pd.DataFrame(
+            #         pd.read_excel(
+            #             src,
+            #             names=raw_cols,
+            #             skiprows=range(1, skip_rows),
+            #             header=0,
+            #             engine="odf",
+            #             converters={
+            #                 "name": strip_whitespace,
+            #                 "cat": strip_whitespace,
+            #             },
+            #         )
+            #     )
+            #     print("In first exception where engine is odf", e)
+            df = df.dropna(subset=["name", "cat"])
+            df["uuid"] = df.apply(
+                lambda x: make_uuid(name=x["price"], brand=x["brand"]), axis=1
+            )
 
             if "cat2" not in df.columns:
                 df["cat2"] = ""
@@ -152,7 +190,7 @@ def transform_excel(supplier):
 def transform_prices(request):
 
     ret = []
-    suppliers = Supplier.objects.filter(enabled=True)
+    suppliers = Supplier.objects.get(id=8)
     for supplier in suppliers:
         ret.append(transform_excel(supplier))
 
@@ -171,6 +209,7 @@ def get_supplier(request, pk):
     """
     supplier = Supplier.objects.get(pk=pk)
 
+    # transform_excel(supplier)
     res = check_emails_and_save_attachments(supplier.email, supplier.name)
     if res:
         unzip_all_suppliers(supplier)
@@ -217,8 +256,13 @@ def list_suppliers(request):
 
 
 def home(request):
-    context = {}
-    return render(request, "manager-page.html", context)
+    start_time = time.time()
+    working_dir = os.path.join(settings.BASE_DIR, "tmp/csv")
+    l_dir = os.listdir(working_dir)
+    for file in l_dir:
+        print(os.path.join(working_dir, file))
+    context = {"time": round(time.time() - start_time)}
+    return HttpResponse(json.dumps(context))
 
 
 def ajax_upate_supplier(request):
