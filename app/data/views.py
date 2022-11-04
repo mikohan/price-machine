@@ -16,6 +16,7 @@ import openpyxl as xl
 import time
 import hashlib
 from data.lib.one_c_fixer import fix_truck_motors
+import requests
 
 path_to_get = os.path.join(settings.BASE_DIR, "tmp/input")
 path_to_save = os.path.join(settings.BASE_DIR, "tmp/csv")
@@ -105,6 +106,7 @@ def transform_excel(supplier):
         "supplier_name",
         "supplier_item_id",
         "car",
+        "updated",
     ]
     skip_rows = 1
     if supplier.skip_rows:
@@ -169,6 +171,8 @@ def transform_excel(supplier):
                 df["car"] = ""
             if "supplier_item_id" not in df.columns:
                 df["supplier_item_id"] = ""
+            if "updated" not in df.columns:
+                df["updated"] = supplier.updated_price
             df_reorder = df[cols_ready]
             saved_path = os.path.join(
                 path_to_save, supplier.name.lower() + "_" + str(i) + ".csv"
@@ -265,6 +269,62 @@ def home(request):
     return HttpResponse(json.dumps(context))
 
 
+def experiment(request):
+    """Used for experiments with some stuff"""
+
+    start_time = time.time()
+    sups = Supplier.objects.all()
+
+    for sup in sups:
+        transform_excel(sup)
+
+    context = {"time": round(time.time() - start_time)}
+    return HttpResponse(json.dumps(context))
+
+
 def ajax_upate_supplier(request):
     time.sleep(4)
     return JsonResponse({"foo": "bar"})
+
+
+from requests.auth import HTTPBasicAuth
+from elasticsearch import Elasticsearch
+
+
+def make_search(request):
+    """Function make requests to elasticsearch and return json"""
+
+    data = {
+        "_source": [
+            "name",
+            "cat",
+            "cat2",
+            "stock",
+            "supplier_name",
+            "@version",
+            "price",
+            "updated",
+        ],
+        "query": {
+            "bool": {
+                "should": [
+                    {"wildcard": {"cat": {"value": "373*"}}},
+                    {"match": {"cat2": "373"}},
+                ]
+            }
+        },
+    }
+    # client = Elasticsearch(
+    #     "http://localhost:9200", basic_auth=("elastic", "manhee33338")
+    # )
+    # client.info()
+
+    r = requests.post(
+        f"{settings.ELASTIC_URL}/{settings.ELASTIC_INDEX}/_search",
+        auth=HTTPBasicAuth("elastic", "manhee33338"),
+        headers={"Content-Type": "application/json"},
+        # data=data,
+    )
+    print(json.dumps(data))
+    print(r.json())
+    return JsonResponse(r.json())

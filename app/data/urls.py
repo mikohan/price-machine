@@ -6,6 +6,8 @@ from data.views import (
     get_supplier,
     list_suppliers,
     ajax_upate_supplier,
+    experiment,
+    make_search,
 )
 from django.urls import path
 
@@ -17,4 +19,7 @@ urlpatterns = [
     path("ajax-update-suppliers/", get_suppliers, name="ajax-update-suppliers"),
     path("ajax-update-supplier/", ajax_upate_supplier, name="ajax-update-supplier"),
     path("transform-price/", transform_prices, name="transform-price"),
+    path("experiment", experiment, name="experiment"),
+    # Elasticsearch requests
+    path("search/", make_search, name="make-search"),
 ]
