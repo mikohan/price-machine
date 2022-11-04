@@ -17,6 +17,7 @@ import time
 import hashlib
 from data.lib.one_c_fixer import fix_truck_motors
 import requests
+from requests.auth import HTTPBasicAuth
 
 path_to_get = os.path.join(settings.BASE_DIR, "tmp/input")
 path_to_save = os.path.join(settings.BASE_DIR, "tmp/csv")
@@ -259,16 +260,6 @@ def list_suppliers(request):
     return render(request, "suppliers_list.html", context)
 
 
-def home(request):
-    start_time = time.time()
-    working_dir = os.path.join(settings.BASE_DIR, "tmp/csv")
-    l_dir = os.listdir(working_dir)
-    for file in l_dir:
-        print(os.path.join(working_dir, file))
-    context = {"time": round(time.time() - start_time)}
-    return HttpResponse(json.dumps(context))
-
-
 def experiment(request):
     """Used for experiments with some stuff"""
 
@@ -287,8 +278,10 @@ def ajax_upate_supplier(request):
     return JsonResponse({"foo": "bar"})
 
 
-from requests.auth import HTTPBasicAuth
-from elasticsearch import Elasticsearch
+def home(request):
+    """Function for mani page with searches"""
+    context = {}
+    return render(request, "manager-page.html", context)
 
 
 def make_search(request):
@@ -314,19 +307,13 @@ def make_search(request):
             }
         },
     }
-    client = Elasticsearch(
-        "http://elasticsearch:9200", basic_auth=("elastic", "manhee33338")
-    )
-    client.info()
 
-    # r = requests.post(
-    #     f"{settings.ELASTIC_URL}/{settings.ELASTIC_INDEX}/_search",
-    #     auth=HTTPBasicAuth("elastic", "manhee33338"),
-    #     headers={"Content-Type": "application/json"},
-    #     # data=data,
-    # )
-    r = requests.get("https://google.com")
-    print(r.text)
+    r = requests.post(
+        f"{settings.ELASTIC_URL}/{settings.ELASTIC_INDEX}/_search",
+        auth=HTTPBasicAuth(settings.ELASTIC_USER, settings.ELASTIC_PASSWORD),
+        headers={"Content-Type": "application/json"},
+        data=json.dumps(data),
+    )
     # print(json.dumps(data))
     # print(r.json())
-    return JsonResponse({"some": "text"})
+    return JsonResponse(r.json())
