@@ -86,33 +86,33 @@
     </nav>
 
     <main id="app" class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <div
-        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-      >
-        <h1 class="h2">Dashboard</h1>
-        <div class="btn-toolbar mb-2 mb-md-0">
-          <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">
-              Share
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary">
-              Export
-            </button>
+      <div class="row p-5">
+        <span>[[ search ]]</search>
+        <form class="w-100 me-3" role="search">
+          <div class="form-row">
+            <div class="input-group date">
+              <input
+                v-model="search"
+                placeholder="Buscar"
+                type="search"
+                class="form-control"
+                placeholder="Búsqueda..."
+                aria-label="Búsqueda"
+                @input="callSearch"
+              />
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-sm"
+                style="margin-left: 5px"
+                @click="callSearch"
+              >
+                Buscar
+              </button>
+            </div>
           </div>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-secondary dropdown-toggle"
-          >
-            <span data-feather="calendar" class="align-text-bottom"></span>
-            This week
-          </button>
-        </div>
+        </form>
       </div>
 
-      <p>Message is: [[message]]</p>
-      <input v-model="message" placeholder="Buscar" />
-
-      <h2>[[ message ]]</h2>
       <easy-data-table
         :headers="headers"
         :items="items"

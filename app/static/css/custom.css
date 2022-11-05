@@ -32,6 +32,5 @@
 }
 
 .vue3-easy-data-table__body>tr>td {
-    font-weight: bold;
-    color: teal;
+    font-weight: 400;
 }
