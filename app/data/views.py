@@ -280,7 +280,7 @@ def ajax_upate_supplier(request):
 
 def home(request):
     """Function for mani page with searches"""
-    context = {}
+    context = {"FRONT_SEARCH_URL": settings.FRONT_SEARCH_URL}
     return render(request, "manager-page.html", context)
 
 
@@ -298,6 +298,8 @@ def make_search(request):
             "price",
             "updated",
         ],
+        "from": 0,
+        "size": 100,
         "query": {
             "bool": {
                 "should": [
@@ -310,10 +312,9 @@ def make_search(request):
 
     r = requests.post(
         f"{settings.ELASTIC_URL}/{settings.ELASTIC_INDEX}/_search",
-        auth=HTTPBasicAuth(settings.ELASTIC_USER, settings.ELASTIC_PASSWORD),
+        auth=HTTPBasicAuth(os.getenv("ELASTIC_USER"), os.getenv("ELASTIC_PASSWORD")),
         headers={"Content-Type": "application/json"},
         data=json.dumps(data),
     )
-    print(os.environ.get("POSTGRES_USER"))
     # print(r.json())
     return JsonResponse(r.json())

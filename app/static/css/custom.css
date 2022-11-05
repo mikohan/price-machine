@@ -30,3 +30,8 @@
 .left-side-list {
     padding: 2rem;
 }
+
+.vue3-easy-data-table__body>tr>td {
+    font-weight: bold;
+    color: teal;
+}
