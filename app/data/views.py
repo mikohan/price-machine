@@ -280,41 +280,52 @@ def ajax_upate_supplier(request):
 
 def home(request):
     """Function for mani page with searches"""
-    context = {"FRONT_SEARCH_URL": settings.FRONT_SEARCH_URL}
+    context = {
+        "FRONT_SEARCH_URL": settings.FRONT_SEARCH_URL,
+        "FRONT_SEARCH_URL_ANGARA": settings.FRONT_SEARCH_URL_ANGARA,
+    }
     return render(request, "manager-page.html", context)
 
 
-def make_search(request):
+def make_search(request, search):
     """Function make requests to elasticsearch and return json"""
+    print(search)
 
     data = {
-        "_source": [
-            "name",
-            "cat",
-            "cat2",
-            "stock",
-            "supplier_name",
-            "@version",
-            "price",
-            "updated",
-        ],
         "from": 0,
         "size": 100,
         "query": {
             "bool": {
                 "should": [
-                    {"wildcard": {"cat": {"value": "373*"}}},
-                    {"match": {"cat2": "373"}},
+                    {"wildcard": {"cat": {"value": f"{search}*"}}},
+                    {"match": {"cat2": search}},
                 ]
             }
         },
     }
+    r = json.dumps("")
+    if search:
 
-    r = requests.post(
-        f"{settings.ELASTIC_URL}/{settings.ELASTIC_INDEX}/_search",
-        auth=HTTPBasicAuth(os.getenv("ELASTIC_USER"), os.getenv("ELASTIC_PASSWORD")),
-        headers={"Content-Type": "application/json"},
-        data=json.dumps(data),
+        r = requests.post(
+            f"{settings.ELASTIC_URL}/_search",
+            auth=HTTPBasicAuth(
+                os.getenv("ELASTIC_USER"), os.getenv("ELASTIC_PASSWORD")
+            ),
+            headers={"Content-Type": "application/json"},
+            data=json.dumps(data),
+        )
+        # print(r.json())
+
+    return JsonResponse(r.json())
+
+
+def make_search_angara(request, search):
+    """Function make requests to elasticsearch and return json"""
+    print(search)
+
+    r = requests.get(
+        f"https://angara77.ga/api/product/jsontest-get-products-for-angara-procenka/{search}/"
     )
     # print(r.json())
+
     return JsonResponse(r.json())

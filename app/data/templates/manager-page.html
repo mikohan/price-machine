@@ -1,4 +1,5 @@
-{% extends "base.html" %} {% block content %} {% load static %}
+{% extends "base.html" %} {% block content %} {% load static %}<br />
+{% block title %}Проценка {% endblock title%}
 <div class="container-fluid">
   <div class="row">
     <nav
@@ -87,7 +88,7 @@
 
     <main id="app" class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div class="row p-5">
-        <span>[[ search ]]</search>
+        <span>[[ search ]]</span>
         <form class="w-100 me-3" role="search">
           <div class="form-row">
             <div class="input-group date">
@@ -112,14 +113,47 @@
           </div>
         </form>
       </div>
-
-      <easy-data-table
-        :headers="headers"
-        :items="items"
-        :rows-per-page="100"
-        show-index
-        alternating
-      />
+      <div class="dummy-text" v-if="!showTable">
+        <h3>НАЧИНАЙ ВВОДИТЬ НОМЕР В ПОИСК!</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr class="thead-top">
+              <th scope="col">1С</th>
+              <th scope="col">НАЗВАНИЕ</th>
+              <th scope="col">КАТАЛОГ</th>
+              <th scope="col">БРЕНД</th>
+              <th scope="col">КОЛ-ВО</th>
+              <th scope="col">ЦЕНА</th>
+              <th scope="col">CAR</th>
+              <th scope="col">ФОТ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="angara-tr" v-for="item in itemsAngara">
+              <td>[[ item.one_c_id ]]</td>
+              <td>[[ item.name ]]</td>
+              <td>[[ item.cat ]]</td>
+              <td>[[ item.brand ]]</td>
+              <td>[[ item.stock ]]</td>
+              <td>[[ item.price ]]</td>
+              <td>[[ item.car ]]</td>
+              <td><img width="40" :src="item.img" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-if="showTable">
+        <easy-data-table
+          id="1"
+          :headers="headers"
+          :items="items"
+          :rows-per-page="100"
+          show-index
+          alternating
+        />
+      </div>
     </main>
   </div>
 </div>
@@ -127,7 +161,7 @@
 {% endblock content %} {% block js %}
 <script>
   const FRONT_SEARCH_URL = '{{ FRONT_SEARCH_URL }}';
-  console.log(FRONT_SEARCH_URL);
+  const FRONT_SEARCH_URL_ANGARA = '{{ FRONT_SEARCH_URL_ANGARA }}';
 </script>
 <script src="{% static 'js/axios.min.js' %}"></script>
 <link href="{% static 'css/simple-table.css' %}" rel="stylesheet" />

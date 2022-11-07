@@ -34,3 +34,16 @@
 .vue3-easy-data-table__body>tr>td {
     font-weight: 400;
 }
+
+.thead-top {
+    border-top: 1px solid #dee2e6;
+    font-size: 90%;
+}
+
+.angara-tr {
+    font-size: 86%;
+}
+
+.dummy-text {
+    text-align: center;
+}
