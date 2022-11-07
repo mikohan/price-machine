@@ -7,7 +7,7 @@
   <div class="container-fluid">
     <div class="row">
       <main id="app" class="col-md-12 ms-sm-auto col-lg-12 px-md-4">
-        <div class="row p-5">
+        <div class="row p-2">
           <form @submit.prevent class="w-100 me-3" role="search">
             <div class="form-row">
               <div class="input-group date">
@@ -31,9 +31,7 @@
             </div>
           </form>
         </div>
-        <div class="dummy-text" v-if="!showTable">
-          <h3>НАЧИНАЙ ВВОДИТЬ НОМЕР В ПОИСК!</h3>
-        </div>
+        <h6>В базе поставщиков: <span class="badge bg-success">[[ totalCount ]]</span></h6>
         <div class="row">
           <div class="col-md-6 col-xs-12">
             <h6>Ангара <span class="badge rounded-pill text-bg-success">[[resCountAngara]]</span></h6>
@@ -92,6 +90,8 @@
   <script>
   const FRONT_SEARCH_URL = '{{ FRONT_SEARCH_URL }}';
   const FRONT_SEARCH_URL_ANGARA = '{{ FRONT_SEARCH_URL_ANGARA }}';
+  const MAIN_HOST = '{{ MAIN_HOST }}';
+  const MAIN_HOST_SCHEME = '{{ MAIN_HOST_SCHEME }}';
   </script>
   <script src="{% static 'js/axios.min.js' %}"></script>
   <link href="{% static 'css/simple-table.css' %}" rel="stylesheet" />

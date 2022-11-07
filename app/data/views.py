@@ -285,6 +285,8 @@ def home(request):
     context = {
         "FRONT_SEARCH_URL": settings.FRONT_SEARCH_URL,
         "FRONT_SEARCH_URL_ANGARA": settings.FRONT_SEARCH_URL_ANGARA,
+        "MAIN_HOST": os.getenv("MAIN_HOST"),
+        "MAIN_HOST_SCHEME": os.getenv("MAIN_HOST_SCHEME"),
     }
     return render(request, "manager-page.html", context)
 
@@ -349,8 +351,39 @@ def make_search_angara(request, search):
     print(search)
 
     r = requests.get(
-        f"https://angara77.ga/api/product/jsontest-get-products-for-angara-procenka/{search}/"
+        f"{settings.ELASTIC_URL_ANGARA}/api/product/jsontest-get-products-for-angara-procenka/{search}/"
     )
     # print(r.json())
+
+    return JsonResponse(r.json())
+
+
+def make_total_count(request):
+    """Make query for totl count in supplers database"""
+
+    try:
+        r = requests.get(
+            f"{settings.ELASTIC_URL}/{settings.ELASTIC_INDEX}/_count",
+            auth=HTTPBasicAuth(
+                os.getenv("ELASTIC_USER"), os.getenv("ELASTIC_PASSWORD")
+            ),
+            headers={"Content-Type": "application/json"},
+        )
+    except Exception as e:
+        return JsonResponse({"error": e, "message": "Can't request server suppliers"})
+
+    return JsonResponse(r.json())
+
+
+def make_total_count_angara(request):
+    """Make query for totl count in angara database"""
+
+    try:
+        r = requests.get(
+            f"{settings.ELASTIC_URL_ANGARA}/{settings.ELASTIC_INDEX}/_count"
+        )
+        # print(r.json())
+    except Exception as e:
+        return JsonResponse({"error": e, "message": "Can't request server suppliers"})
 
     return JsonResponse(r.json())

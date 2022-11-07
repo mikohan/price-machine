@@ -1,6 +1,8 @@
 const { createApp } = Vue;
 const searchUrl = FRONT_SEARCH_URL;
 const searchUrlAngara = FRONT_SEARCH_URL_ANGARA;
+const mainHost = MAIN_HOST;
+const mainHostScheme = MAIN_HOST_SCHEME && 'http';
 
 createApp({
   components: {
@@ -12,6 +14,8 @@ createApp({
       search: '',
       resCount: 0,
       resCountAngara: 0,
+      // Total count of stuff
+      totalCount: 0,
       headers: [
         { text: 'НАЗВАНИЕ', value: 'name' },
         { text: 'КАТАЛОГ', value: 'cat' },
@@ -37,6 +41,13 @@ createApp({
     };
   },
   methods: {
+    async callCount() {
+      this.totalCount = 0;
+      const res = await axios.get(
+        `${mainHostScheme}://${mainHost}/total-count/`
+      );
+      this.totalCount = res.data.count;
+    },
     async callSearch() {
       this.items = [];
       this.itemsAngara = [];
@@ -102,5 +113,7 @@ createApp({
       }
     },
   },
-  created() {},
+  created() {
+    this.callCount();
+  },
 }).mount('#app');

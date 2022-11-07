@@ -9,6 +9,8 @@ from data.views import (
     experiment,
     make_search,
     make_search_angara,
+    make_total_count,
+    make_total_count_angara,
 )
 from django.urls import path
 
@@ -24,4 +26,8 @@ urlpatterns = [
     # Elasticsearch requests
     path("search/<str:search>/", make_search, name="make-search"),
     path("search-angara/<str:search>/", make_search_angara, name="make-search-angara"),
+    path("total-count/", make_total_count, name="make-total-count"),
+    path(
+        "total-count-angara/", make_total_count_angara, name="make-total-count-angara"
+    ),
 ]
