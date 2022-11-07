@@ -10,7 +10,8 @@ createApp({
   data() {
     return {
       search: '',
-      resCount: null,
+      resCount: 0,
+      resCountAngara: 0,
       headers: [
         { text: 'НАЗВАНИЕ', value: 'name' },
         { text: 'КАТАЛОГ', value: 'cat' },
@@ -49,6 +50,7 @@ createApp({
         const resAngara = await axios.get(`${searchUrlAngara}/${search}/`);
         const dataAngara = resAngara.data;
         const rowsAngara = dataAngara.hits.hits;
+        this.resCountAngara = dataAngara.hits.total.value;
 
         rowsAngara.forEach((item) => {
           const newItem = {};
@@ -58,8 +60,10 @@ createApp({
           newItem.brand = item._source.brand.name.toUpperCase();
           newItem.slug = item._source.slug;
           if (item._source.stocks) {
-            newItem.price = item._source.stocks[0].price;
-            newItem.stock = item._source.stocks[0].quantity;
+            newItem.price =
+              item._source.stocks.length && item._source.stocks[0].price;
+            newItem.stock =
+              item._source.stocks.length && item._source.stocks[0].quantity;
           }
           newItem.supplier_name = 'ANGARA';
           newItem.updated = newDate.toLocaleDateString('ru-RU');
@@ -79,7 +83,9 @@ createApp({
           date = Date.parse(item._source.updated);
           newDate = new Date(date);
           item._source.updated = newDate.toLocaleDateString('ru-RU');
-          item._source.supplier_name = item._source.supplier_name.toUpperCase();
+          item._source.supplier_name =
+            item._source.supplier_name &&
+            item._source.supplier_name.toUpperCase();
           this.items.push({ ...item._source });
         });
         this.resCount = data.hits.total.value;
@@ -96,8 +102,5 @@ createApp({
       }
     },
   },
-  created() {
-    // this.callSearch();
-    console.log('created');
-  },
+  created() {},
 }).mount('#app');

@@ -18,6 +18,8 @@ import hashlib
 from data.lib.one_c_fixer import fix_truck_motors
 import requests
 from requests.auth import HTTPBasicAuth
+import re
+from http import HTTPStatus
 
 path_to_get = os.path.join(settings.BASE_DIR, "tmp/input")
 path_to_save = os.path.join(settings.BASE_DIR, "tmp/csv")
@@ -289,32 +291,55 @@ def home(request):
 
 def make_search(request, search):
     """Function make requests to elasticsearch and return json"""
-    print(search)
 
-    data = {
-        "from": 0,
-        "size": 100,
-        "query": {
-            "bool": {
-                "should": [
-                    {"wildcard": {"cat": {"value": f"{search}*"}}},
-                    {"wildcard": {"cat2": {"value": f"{search}*"}}},
-                ]
-            }
-        },
-    }
+    data = ""
+    if re.match(r"^\d{1}", search):
+        data = {
+            "from": 0,
+            "size": 100,
+            "query": {
+                "bool": {
+                    "should": [
+                        {"wildcard": {"cat": {"value": f"{search}*"}}},
+                        {"wildcard": {"cat2": {"value": f"{search}*"}}},
+                    ]
+                }
+            },
+        }
+    elif re.match(r"[A-Za-z]+", search):
+        data = {
+            "from": 0,
+            "size": 100,
+            "query": {
+                "bool": {
+                    "should": [
+                        {"wildcard": {"cat": {"value": f"{search}*"}}},
+                        {"wildcard": {"cat2": {"value": f"{search}*"}}},
+                    ]
+                }
+            },
+        }
+    else:
+        data = {
+            "from": 0,
+            "size": 100,
+            "query": {"match": {"name": {"query": f"{search}", "operator": "and"}}},
+        }
+
     r = json.dumps("")
     if search:
+        try:
 
-        r = requests.post(
-            f"{settings.ELASTIC_URL}/_search",
-            auth=HTTPBasicAuth(
-                os.getenv("ELASTIC_USER"), os.getenv("ELASTIC_PASSWORD")
-            ),
-            headers={"Content-Type": "application/json"},
-            data=json.dumps(data),
-        )
-        # print(r.json())
+            r = requests.post(
+                f"{settings.ELASTIC_URL}/_search",
+                auth=HTTPBasicAuth(
+                    os.getenv("ELASTIC_USER"), os.getenv("ELASTIC_PASSWORD")
+                ),
+                headers={"Content-Type": "application/json"},
+                data=json.dumps(data),
+            )
+        except Exception as e:
+            return JsonResponse({"code": 500, "message": f"Server error{e}"})
 
     return JsonResponse(r.json())
 
