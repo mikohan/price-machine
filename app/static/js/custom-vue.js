@@ -56,6 +56,7 @@ createApp({
           newItem.name = item._source.name;
           newItem.cat = item._source.cat_number;
           newItem.brand = item._source.brand.name.toUpperCase();
+          newItem.slug = item._source.slug;
           if (item._source.stocks) {
             newItem.price = item._source.stocks[0].price;
             newItem.stock = item._source.stocks[0].quantity;
@@ -97,5 +98,6 @@ createApp({
   },
   created() {
     // this.callSearch();
+    console.log('created');
   },
 }).mount('#app');

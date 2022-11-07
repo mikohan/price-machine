@@ -11,3 +11,5 @@ requirements.txt
 docker-compose.yml
 settings.py
 tmp
+.prettierignore
+.djlintrc

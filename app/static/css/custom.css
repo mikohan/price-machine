@@ -47,3 +47,7 @@
 .dummy-text {
     text-align: center;
 }
+
+.angara-table {
+    border: 1px solid #dee2e6;
+}

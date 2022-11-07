@@ -298,7 +298,7 @@ def make_search(request, search):
             "bool": {
                 "should": [
                     {"wildcard": {"cat": {"value": f"{search}*"}}},
-                    {"match": {"cat2": search}},
+                    {"wildcard": {"cat2": {"value": f"{search}*"}}},
                 ]
             }
         },
