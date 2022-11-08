@@ -50,18 +50,18 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr class="angara-tr" v-for="item in itemsAngara">
-                    <td>[[ item.one_c_id ]]</td>
+                  <tr class="angara-tr" v-for="rowAng in itemsAngara">
+                    <td>[[ rowAng.one_c_id ]]</td>
                     <td>
-                      <a :href="`https://angara77.com/product/${item.slug}/`" target="_blank">[[ item.name ]]</a>
+                      <a :href="`https://angara77.com/product/${rowAng.slug}/`" target="_blank">[[ rowAng.name ]]</a>
                     </td>
-                    <td>[[ item.cat ]]</td>
-                    <td>[[ item.brand ]]</td>
-                    <td>[[ item.stock ]]</td>
-                    <td>[[ item.price ]]</td>
-                    <td>[[ item.car ]]</td>
+                    <td>[[ rowAng.cat ]]</td>
+                    <td>[[ rowAng.brand ]]</td>
+                    <td>[[ rowAng.stock ]]</td>
+                    <td>[[ rowAng.price ]]</td>
+                    <td>[[ rowAng.car ]]</td>
                     <td>
-                      <img width="40" :src="item.img" />
+                      <img width="40" :src="rowAng.img" />
                     </td>
                   </tr>
                 </tbody>
@@ -69,7 +69,7 @@
             </div>
           </div>
           <div class="col-md-6 col-xs-12">
-            <h6>Поставляльщики <span class="badge rounded-pill text-bg-primary">[[ resCount ]]</span></h6>
+            <h6>Поставщики <span class="badge rounded-pill text-bg-primary">[[ resCount ]]</span></h6>
             <div v-if="showTable">
               <easy-data-table
               id="1"

@@ -324,7 +324,7 @@ def make_search(request, search):
     else:
         data = {
             "from": 0,
-            "size": 100,
+            "size": 200,
             "query": {"match": {"name": {"query": f"{search}", "operator": "and"}}},
         }
 
@@ -333,7 +333,7 @@ def make_search(request, search):
         try:
 
             r = requests.post(
-                f"{settings.ELASTIC_URL}/_search",
+                f"{settings.ELASTIC_URL}/{settings.ELASTIC_INDEX}/_search",
                 auth=HTTPBasicAuth(
                     os.getenv("ELASTIC_USER"), os.getenv("ELASTIC_PASSWORD")
                 ),

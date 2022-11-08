@@ -11,7 +11,7 @@ createApp({
   delimiters: ['[[', ']]'],
   data() {
     return {
-      search: '',
+      search: '26300',
       resCount: 0,
       resCountAngara: 0,
       // Total count of stuff
@@ -56,15 +56,17 @@ createApp({
         search = this.search;
         const res = await axios.get(`${searchUrl}/${search}/`);
         const data = res.data;
-        const rows = data.hits.hits;
+        const rowsSupplier = data.hits.hits;
 
         const resAngara = await axios.get(`${searchUrlAngara}/${search}/`);
         const dataAngara = resAngara.data;
         const rowsAngara = dataAngara.hits.hits;
         this.resCountAngara = dataAngara.hits.total.value;
 
+        const angArray = [];
+
         rowsAngara.forEach((item) => {
-          const newItem = {};
+          let newItem = {};
           newDate = new Date();
           newItem.name = item._source.name;
           newItem.cat = item._source.cat_number;
@@ -86,19 +88,30 @@ createApp({
           if (item._source.images) {
             newItem.img = item._source.images[0].image;
           }
-          this.itemsAngara.push({ ...newItem });
+          angArray.push({ ...newItem });
         });
+        this.itemsAngara = [...angArray];
 
-        rows.forEach((item) => {
-          item._source.price = parseInt(item._source.price);
-          date = Date.parse(item._source.updated);
+        // New array
+        const arr = [];
+
+        rowsSupplier.forEach((i) => {
+          item = {};
+          item.price = i._source.price && parseInt(i._source.price);
+          date = Date.parse(i._source.updated);
           newDate = new Date(date);
-          item._source.updated = newDate.toLocaleDateString('ru-RU');
-          item._source.supplier_name =
-            item._source.supplier_name &&
-            item._source.supplier_name.toUpperCase();
-          this.items.push({ ...item._source });
+          item.name = i._source.name;
+          item.cat = i._source.cat;
+          item.stock = i._source.stock;
+
+          item.brand = i._source.brand;
+          item.updated = newDate.toLocaleDateString('ru-RU');
+          item.supplier_name =
+            i._source.supplier_name && i._source.supplier_name.toUpperCase();
+          arr.push(item);
         });
+        this.items = [...arr];
+
         this.resCount = data.hits.total.value;
         if (this.itemsAngara.length > 0) {
           this.showTableAngara = true;
@@ -115,5 +128,6 @@ createApp({
   },
   created() {
     this.callCount();
+    this.callSearch();
   },
 }).mount('#app');
