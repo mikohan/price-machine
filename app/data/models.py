@@ -36,7 +36,17 @@ class Supplier(models.Model):
     price_fields = models.TextField(
         null=True,
         blank=True,
-        help_text="Поля в прайсе в фомате json",
+        help_text="""[
+        "name",
+        "brand",
+        "cat",
+        "cat2",
+        "price",
+        "stock",
+        "supplier_name",
+        "supplier_item_id",
+        "car",
+    ]""",
     )
     skip_rows = models.IntegerField(
         null=True,

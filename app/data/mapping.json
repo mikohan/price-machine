@@ -1,0 +1,61 @@
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "russian_analyzer": {
+          "tokenizer": "standard",
+          "filter": ["lowercase", "russian_stemmer", "russian_stop", "synonym"]
+        },
+        "hyphen_remover": {
+          "tokenizer": "keyword",
+          "filter": ["lowercase", "my_remover"]
+        },
+        "cat2_analyzer": {
+          "tokenizer": "whitespace",
+          "filter": ["lowercase", "my_remover"]
+        }
+      },
+      "filter": {
+        "my_remover": {
+          "type": "pattern_replace",
+          "pattern": "[\\-\\.]",
+          "replacement": ""
+        },
+        "russian_stemmer": {
+          "type": "stemmer",
+          "language": "russian"
+        },
+        "russian_stop": {
+          "type": "stop",
+          "stopwords": "_russian_"
+        },
+        "synonym": {
+          "type": "synonym",
+          "lenient": true,
+          "synonyms": [
+            "porter, порт => портер",
+            "гбц, головка",
+            "кпп => коробка",
+            "масляный => маслянный"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "name": {
+        "type": "text",
+        "analyzer": "russian_analyzer"
+      },
+      "cat": {
+        "type": "text",
+        "analyzer": "hyphen_remover"
+      },
+      "cat2": {
+        "type": "text",
+        "analyzer": "cat2_analyzer"
+      }
+    }
+  }
+}
