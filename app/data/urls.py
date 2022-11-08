@@ -11,11 +11,13 @@ from data.views import (
     make_search_angara,
     make_total_count,
     make_total_count_angara,
+    mapping,
 )
 from django.urls import path
 
 urlpatterns = [
     path("", home, name="home"),
+    path("mapping/", mapping, name="mapping"),
     path("emails/", get_emails, name="get-emails"),
     path("supplier/<int:pk>/", get_supplier, name="get-supplier-price"),
     path("suppliers/", list_suppliers, name="list-suppliers"),

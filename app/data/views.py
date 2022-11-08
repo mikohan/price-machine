@@ -280,8 +280,27 @@ def ajax_upate_supplier(request):
     return JsonResponse({"foo": "bar"})
 
 
+def mapping(request):
+    """Here I will try to apply mapping to index if it not exists"""
+    path_insert = os.path.join(settings.BASE_DIR, "data/mapping.json")
+    data = ""
+    with open(path_insert, "r", encoding="utf-8") as file:
+        data = json.load(file)
+    r = requests.put(
+        f"{settings.ELASTIC_URL}/{settings.ELASTIC_INDEX}",
+        auth=HTTPBasicAuth(os.getenv("ELASTIC_USER"), os.getenv("ELASTIC_PASSWORD")),
+        headers={"Content-Type": "application/x-ndjson"},
+        data=json.dumps(data),
+    )
+    if r.status_code == 200:
+        return JsonResponse({"message": "Mapping is applied", "text": r.json()})
+    else:
+        return JsonResponse({"message": "Index already exists"})
+
+
 def home(request):
     """Function for mani page with searches"""
+
     context = {
         "FRONT_SEARCH_URL": settings.FRONT_SEARCH_URL,
         "FRONT_SEARCH_URL_ANGARA": settings.FRONT_SEARCH_URL_ANGARA,
