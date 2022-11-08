@@ -1,0 +1,53 @@
+.site-header {
+    background-color: rgba(0, 0, 0, 0.85);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+}
+
+.site-header a {
+    color: #8e8e8e;
+    transition: color 0.15s ease-in-out;
+}
+
+.custom-button-refresh:hover {
+    font-weight: bold;
+    cursor: pointer;
+    color: red;
+}
+
+.font-weight-my {
+    font-weight: 500;
+}
+
+.date-text {
+    font-size: 0.8rem;
+}
+
+.load-suppliers-button {
+    min-width: 150px;
+}
+
+.left-side-list {
+    padding: 2rem;
+}
+
+.vue3-easy-data-table__body>tr>td {
+    font-weight: 400;
+}
+
+.thead-top {
+    border-top: 1px solid #dee2e6;
+    font-size: 90%;
+}
+
+.angara-tr {
+    font-size: 86%;
+}
+
+.dummy-text {
+    text-align: center;
+}
+
+.angara-table {
+    border: 1px solid #dee2e6;
+}
