@@ -1,5 +1,7 @@
 .ipynb*
 .env
+.env.dev
+
 .env*
 shared_data
 venv
