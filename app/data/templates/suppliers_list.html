@@ -139,13 +139,14 @@
         <table class="table table-striped table-sm">
           <thead>
             <tr>
-              <th class="col-1" scope="col">#</th>
-              <th class="col-6" scope="col">Название</th>
+              <th class="col" scope="col">#</th>
+              <th class="col-5" scope="col">Название</th>
+              <th class="col-1" scope="col">Email</th>
               <th class="col-1" scope="col">Вес</th>
               <th class="col-1" scope="col">Свежий</th>
               <th class="col-2" scope="col">Загружен</th>
               <th class="col-1" scope="col">Получить</th>
-              <th class="col-1" scope="col">Активный</th>
+              <th class="col" scope="col">Активный</th>
             </tr>
           </thead>
           <tbody>
@@ -155,6 +156,11 @@
               <td>
                 <span class="font-weight-my text-primary">
                   {{ supplier.show_name }}
+                </span>
+              </td>
+              <td>
+                <span class="font-weight-my text-primary">
+                  {{ supplier.email }}
                 </span>
               </td>
               <td>{{ supplier.weight }}</td>

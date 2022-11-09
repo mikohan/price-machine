@@ -53,7 +53,7 @@ createApp({
       this.itemsAngara = [];
       let search = '';
       if (this.search.length > 2) {
-        search = this.search;
+        search = this.search.trim();
         const res = await axios.get(`${searchUrl}/${search}/`);
         const data = res.data;
         const rowsSupplier = data.hits.hits;
