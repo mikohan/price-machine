@@ -20,6 +20,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 import re
 from http import HTTPStatus
+from django.contrib.auth.decorators import login_required
 
 path_to_get = os.path.join(settings.BASE_DIR, "tmp/input")
 path_to_save = os.path.join(settings.BASE_DIR, "tmp/csv")
@@ -86,9 +87,9 @@ def strip_whitespace(text):
         return text
 
 
-def make_uuid(name, brand):
+def make_uuid(name, brand, cat):
     """Make unique ID from Name and brand"""
-    string = str(name) + str(brand)
+    string = str(name) + str(brand) + str(cat)
     m = hashlib.md5()
     m.update(string.encode("utf-8"))
     return str(int(m.hexdigest(), 16))[0:12]
@@ -163,7 +164,8 @@ def transform_excel(supplier):
             #     print("In first exception where engine is odf", e)
             df = df.dropna(subset=["name", "cat"])
             df["uuid"] = df.apply(
-                lambda x: make_uuid(name=x["price"], brand=x["brand"]), axis=1
+                lambda x: make_uuid(name=x["price"], brand=x["brand"], cat=x["cat"]),
+                axis=1,
             )
 
             if "cat2" not in df.columns:
@@ -257,7 +259,11 @@ def list_suppliers(request):
     """Listing suppliers"""
     suppliers = Supplier.objects.filter(enabled=True).order_by("-weight")
     supplier = suppliers.first()
-    context = {"suppliers": suppliers, "PRICE_EXPERATION": settings.PRICE_EXPERATION}
+    context = {
+        "suppliers": suppliers,
+        "PRICE_EXPERATION": settings.PRICE_EXPERATION,
+        "MAIN_HOST_URL": settings.MAIN_HOST_URL,
+    }
 
     return render(request, "suppliers_list.html", context)
 
@@ -312,6 +318,7 @@ def home(request):
 
 def make_search(request, search):
     """Function make requests to elasticsearch and return json"""
+    search = search.replace("-", "").lower()
 
     data = ""
     if re.match(r"^\d{1}", search):
@@ -323,6 +330,7 @@ def make_search(request, search):
                     "should": [
                         {"wildcard": {"cat": {"value": f"{search}*"}}},
                         {"wildcard": {"cat2": {"value": f"{search}*"}}},
+                        {"match": {"cat": f"{search}"}},
                     ]
                 }
             },
@@ -336,6 +344,7 @@ def make_search(request, search):
                     "should": [
                         {"wildcard": {"cat": {"value": f"{search}*"}}},
                         {"wildcard": {"cat2": {"value": f"{search}*"}}},
+                        {"match": {"cat": f"{search}"}},
                     ]
                 }
             },
@@ -367,12 +376,11 @@ def make_search(request, search):
 
 def make_search_angara(request, search):
     """Function make requests to elasticsearch and return json"""
-    print(search)
+    search = search.replace("-", "").lower()
 
     r = requests.get(
         f"{settings.ELASTIC_URL_ANGARA}/api/product/jsontest-get-products-for-angara-procenka/{search}/"
     )
-    # print(r.json())
 
     return JsonResponse(r.json())
 

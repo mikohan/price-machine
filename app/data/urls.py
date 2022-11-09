@@ -14,17 +14,34 @@ from data.views import (
     mapping,
 )
 from django.urls import path
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
-    path("", home, name="home"),
+    path("", login_required(home, login_url="/admin/login/"), name="home"),
     path("mapping/", mapping, name="mapping"),
-    path("emails/", get_emails, name="get-emails"),
-    path("supplier/<int:pk>/", get_supplier, name="get-supplier-price"),
-    path("suppliers/", list_suppliers, name="list-suppliers"),
-    path("ajax-update-suppliers/", get_suppliers, name="ajax-update-suppliers"),
-    path("ajax-update-supplier/", ajax_upate_supplier, name="ajax-update-supplier"),
-    path("transform-price/", transform_prices, name="transform-price"),
-    path("experiment", experiment, name="experiment"),
+    # path("emails/", get_emails, name="get-emails"),
+    path(
+        "supplier/<int:pk>/",
+        login_required(get_supplier, login_url="/admin/login/"),
+        name="get-supplier-price",
+    ),
+    path(
+        "suppliers/",
+        login_required(list_suppliers, login_url="/admin/login/"),
+        name="list-suppliers",
+    ),
+    path(
+        "ajax-update-suppliers/",
+        login_required(get_suppliers, login_url="/admin/login/"),
+        name="ajax-update-suppliers",
+    ),
+    path(
+        "ajax-update-supplier/",
+        login_required(ajax_upate_supplier, login_url="/admin/login/"),
+        name="ajax-update-supplier",
+    ),
+    # path("transform-price/", transform_prices, name="transform-price"),
+    # path("experiment", experiment, name="experiment"),
     # Elasticsearch requests
     path("search/<str:search>/", make_search, name="make-search"),
     path("search-angara/<str:search>/", make_search_angara, name="make-search-angara"),

@@ -4,13 +4,12 @@
   //   'use strict';
 
   //   feather.replace({ 'aria-hidden': 'true' });
-  console.log('Working');
 
   $('.get-price-ajax').on('click', function (e) {
     var id = e.target.id;
     $.ajax({
-      url: `http://0.0.0.0:8000/supplier/${id}/`,
-      // url: `http://0.0.0.0:8000/ajax-update-supplier/`,
+      url: `${MAIN_HOST_URL}/supplier/${id}/`,
+      // url: `${MAIN_HOST_URL}/ajax-update-supplier/`,
       datatype: 'json',
       type: 'GET',
       beforeSend: function () {
@@ -21,7 +20,6 @@
       success: function (data) {
         $('#spinner-' + id).hide();
         $('#' + id).show();
-        console.log(data);
 
         // location.reload();
       },
@@ -30,8 +28,8 @@
 
   $('#load-all').on('click', function (e) {
     $.ajax({
-      // url: `http://0.0.0.0:8000/supplier/${id}/`,
-      url: `http://0.0.0.0:8000/ajax-update-suppliers/`,
+      // url: `${MAIN_HOST_URL}/supplier/${id}/`,
+      url: `${MAIN_HOST_URL}/ajax-update-suppliers/`,
       datatype: 'json',
       type: 'GET',
       beforeSend: function () {

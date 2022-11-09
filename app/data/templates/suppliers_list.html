@@ -260,5 +260,8 @@
   </div>
 </div>
 {% endblock content %} {% block js %}
+<script>
+  const MAIN_HOST_URL = '{{ MAIN_HOST_URL  }}';
+</script>
 <script src="{% static 'js/custom-ajax.js' %}"></script>
 {% endblock js %}
