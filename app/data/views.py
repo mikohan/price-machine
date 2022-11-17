@@ -128,13 +128,12 @@ def transform_excel(supplier):
         if supplier.name == "trackmotors":
             fix_truck_motors(src)
 
-        if col_cnt > len_raw_cols:
+        if supplier.name == "rossco" and col_cnt > len_raw_cols:
             dif = col_cnt - len_raw_cols
             for n in range(dif):
                 raw_cols.append("emp")
         try:
             # try:
-
             df = pd.DataFrame(
                 pd.read_excel(
                     src,
@@ -218,7 +217,8 @@ def get_supplier(request, pk):
     """
     supplier = Supplier.objects.get(pk=pk)
 
-    # transform_excel(supplier)
+    transform_excel(supplier)
+    print("Im in transform excel")
     res = check_emails_and_save_attachments(supplier.email, supplier.name)
     if res:
         unzip_all_suppliers(supplier)
