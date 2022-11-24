@@ -170,7 +170,10 @@ def transform_excel(supplier):
             if "cat2" not in df.columns:
                 df["cat2"] = ""
             if "supplier_name" not in df.columns:
-                df["supplier_name"] = supplier.name
+                if supplier.name_rus:
+                    df["supplier_name"] = supplier.name_rus
+                else:
+                    df["supplier_name"] = supplier.name
             if "car" not in df.columns:
                 df["car"] = ""
             if "supplier_item_id" not in df.columns:
