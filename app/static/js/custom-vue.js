@@ -103,6 +103,7 @@ createApp({
           item.name = i._source.name;
           item.cat = i._source.cat;
           item.stock = i._source.stock;
+          item.supplier_item_id = i._source.supplier_item_id && null;
 
           item.brand = i._source.brand;
           item.updated = newDate.toLocaleDateString('ru-RU');
