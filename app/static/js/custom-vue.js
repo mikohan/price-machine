@@ -104,9 +104,9 @@ createApp({
           item.cat = i._source.cat;
           item.stock = i._source.stock;
           item.supplier_item_id = i._source.supplier_item_id && null;
-
           item.brand = i._source.brand;
           item.updated = newDate.toLocaleDateString('ru-RU');
+          console.log(i._source.supplier_name)
           item.supplier_name =
             i._source.supplier_name && i._source.supplier_name.toUpperCase();
           arr.push(item);
